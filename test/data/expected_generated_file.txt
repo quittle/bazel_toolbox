@@ -1,0 +1,5 @@
+Direct variable subsitution: apple
+Generated list: 0123456789
+
+Math: 1.5
+Deeply nested value: 5

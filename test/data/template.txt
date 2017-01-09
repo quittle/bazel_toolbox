@@ -1,0 +1,5 @@
+Direct variable subsitution: {{ fruit }}
+Generated list: {% for i in range(10) %}{{i}}{% endfor %}
+{# This line contains only a comment #}
+Math: {{ 3 / 2 }}
+Deeply nested value: {{ deeply.nested[0].value }}
