@@ -36,7 +36,8 @@ assert_files_equal_rule = rule(
             allow_single_file = True,
             mandatory = True,
         ),
-        "_assert_files_equal": executable_label("//assert:assert_equal"),
+        "_assert_files_equal": executable_label("//assert:assert_equal",
+                                                relative_to_caller_repository=False),
     },
     outputs = {
         "stamp_file": "assert/equal/%{name}.stamp",
