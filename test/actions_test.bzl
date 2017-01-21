@@ -34,7 +34,7 @@ _test_file_copy_rule = rule(
         "_file_copy": executable_label("//actions:file_copy"),
     },
     outputs = {
-        "destination": "%{name}",
+        "destination": "%{name}__copy",
     },
     implementation = _test_file_copy_rule_impl,
 )
@@ -74,7 +74,7 @@ _test_generate_templated_file_rule = rule(
         "_generate_templated_file": executable_label("//actions:generate_templated_file"),
     },
     outputs = {
-        "destination": "%{name}",
+        "destination": "%{name}__generated",
     },
     implementation = _test_generate_templated_file_rule_impl,
 )
