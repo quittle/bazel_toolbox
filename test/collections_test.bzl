@@ -66,14 +66,14 @@ def test_struct_to_dict():
             ),
         )),
         {
-            "nested_list": [[ "a" ]],
-            "dict_in_list": [{ "key": "value" }],
             "struct_in_list": [{
                 "key": "value",
             }],
-            "set":  set([ 1, 2 ]),
             "struct": {
                 "a": "b",
             },
+            "set":  set([ 1, 2 ]),
+            "nested_list": [[ "a" ]],
+            "dict_in_list": [{ "key": "value" }],
         }
     )

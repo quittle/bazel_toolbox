@@ -3,7 +3,6 @@
 
 load("//assert:assert.bzl",
     "assert_equal",
-    "assert_str_equal",
 )
 
 load("//control_flow:control_flow.bzl",
@@ -41,11 +40,11 @@ def test_while_loop():
 
     assert_equal(0, while_loop(decr, state = 3))
 
-    assert_str_equal(
+    assert_equal(
         {
             "incr_calls": 3,
             "is_3_calls": 4,
-            "value": 3
+            "value": 3,
         },
         while_loop(incr, is_3, state = {"value": 0})
     )
