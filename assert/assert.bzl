@@ -4,7 +4,6 @@
 load(":internal.bzl",
     "assert_files_equal_rule",
     "assert_label_struct_rule",
-    "normalize_name",
 )
 
 def assert_equal(v1, v2):
@@ -34,8 +33,7 @@ def assert_files_equal(expected_file, actual_file):
         expected_file: `label` - The file compared against
         actual_file: `label` - The file being tested
     """
-    name = "assert_files_equal_{expected}_{actual}".format(expected = expected_file, actual = actual_file)
-    name = normalize_name(name)
+    name = "assert_files_equal_{hash}".format(hash = hash(expected_file + actual_file))
     assert_files_equal_rule(
         name = name,
         expected_file = expected_file,
@@ -54,10 +52,7 @@ def assert_label_providers(label, expected_struct):
         fail("expected_struct is not a dict")
 
     expected_struct_string = str(expected_struct)
-    name = "assert_label_struct_{label}_{expected_struct}".format(
-            label = label,
-            expected_struct = expected_struct_string)
-    name = normalize_name(name)
+    name = "assert_label_struct_{hash}".format(hash = hash(label + expected_struct_string))
     assert_label_struct_rule(
         name = name,
         label = label,

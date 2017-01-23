@@ -74,14 +74,3 @@ assert_label_struct_rule = rule(
     },
     implementation = _assert_label_struct_impl,
 )
-
-def normalize_name(name):
-    # These names can make the paths extra long so use abbreviations
-    return (name
-            .replace(" ", "-")
-            .replace(":", "_cln_")
-            .replace("\"", "_qte_")
-            .replace("{", "_ocbr_")
-            .replace("}", "_ccbr_")
-            .replace("[", "_osbr_")
-            .replace("]", "_csbr_"))
