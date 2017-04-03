@@ -9,6 +9,7 @@ load("//assert:assert.bzl",
 load("//collections:collections.bzl",
     "dict_to_struct",
     "merge_dicts",
+    "reverse",
     "struct_to_dict",
 )
 
@@ -16,6 +17,7 @@ def run_all_tests():
     test_merge_dicts_()
     test_dict_to_struct()
     test_struct_to_dict()
+    test_reverse()
 
 def test_merge_dicts_():
     assert_equal(merge_dicts({}, {}), {})
@@ -77,3 +79,12 @@ def test_struct_to_dict():
             "dict_in_list": [{ "key": "value" }],
         }
     )
+
+def test_reverse():
+    assert_str_equal([], reverse([]))
+    assert_str_equal(set([]), reverse(set([])))
+    assert_str_equal({}, reverse({}))
+
+    assert_str_equal([1, 2, 3], reverse([3, 2, 1]))
+    assert_str_equal(set([1, 2, 3]), reverse(set([3, 2, 1])))
+    assert_str_equal({"a": 1, "b": 2, "c": 3}, reverse({"c": 3, "b": 2, "a": 1}))

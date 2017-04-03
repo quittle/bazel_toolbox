@@ -171,7 +171,6 @@ def merge_structs(struct_1, struct_2):
     """
     return dict_to_struct(merge_dicts(struct_to_dict(struct_1), struct_to_dict(struct_2)))
 
-# Merges two dicts, overriding methods
 def merge_dicts(dict_1, dict_2):
     """
         Merges two dicts into a new dict.
@@ -248,3 +247,41 @@ def merge_dicts(dict_1, dict_2):
             fail("Container of invalid type: " + type_container)
 
     return result
+
+def reverse(collection):
+    """
+        Reverses a collection.
+
+        Args:
+            collection: `dict|list|set` - The collection to reverse
+
+        Returns:
+            `dict|list|set` - A new collection of the same type, with items in the reverse order of
+                              the input collection.
+    """
+    forward_list = None
+    collection_type = type(collection)
+    if collection_type == "dict":
+        forward_list = collection.items()
+    elif collection_type == "list":
+        forward_list = collection
+    elif collection_type == "set":
+        forward_list = list(collection)
+    else:
+        fail("Unsupported collection type: " + collection_type)
+
+    reverse_list = []
+    for value in forward_list:
+        reverse_list.insert(0, value)
+
+    ret = None
+    if collection_type == "dict":
+        ret = dict(reverse_list)
+    elif collection_type == "list":
+        ret = reverse_list
+    elif collection_type == "set":
+        ret = set(reverse_list)
+    else:
+        fail("Unsupported collection type: " + collection_type)
+
+    return ret
