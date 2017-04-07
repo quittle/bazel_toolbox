@@ -9,6 +9,7 @@ load("//assert:assert.bzl",
 load("//actions:actions.bzl",
     "file_copy",
     "generate_templated_file",
+    "stamp_file",
 )
 
 load("//labels:labels.bzl",
@@ -18,6 +19,7 @@ load("//labels:labels.bzl",
 def run_all_tests():
     test_file_copy()
     test_generate_templated_file()
+    test_stamp_file()
 
 # file_copy test
 
@@ -85,3 +87,28 @@ def test_generate_templated_file():
         template = "data/template.txt",
     )
     assert_files_equal("data/expected_generated_file.txt", ":generate_templated_file_test")
+
+def _test_stamp_file_rule_impl(ctx):
+    stamp_file(ctx, ctx.outputs.stamp_file, ctx.attr.content)
+
+_test_stamp_file_rule = rule(
+    attrs = {
+        "content": attr.string(),
+    },
+    outputs = {
+        "stamp_file": "%{name}.stamp",
+    },
+    implementation = _test_stamp_file_rule_impl,
+)
+
+def test_stamp_file():
+    _test_stamp_file_rule(
+        name = "test_stamp_file_empty",
+    )
+    assert_files_equal("data/empty.txt", ":test_stamp_file_empty")
+
+    _test_stamp_file_rule(
+        name = "test_stamp_file_contents",
+        content = "contents",
+    )
+    assert_files_equal("data/contents.txt", ":test_stamp_file_contents")

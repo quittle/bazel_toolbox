@@ -23,11 +23,18 @@ py_binary(
     visibility = [ "//visibility:public" ],
 )
 
-
 py_binary(
     name = "file_copy",
     srcs = [
         "scripts/file_copy.py",
+    ],
+    visibility = [ "//visibility:public" ],
+)
+
+py_binary(
+    name = "zip_files",
+    srcs = [
+        "scripts/zip_files.py",
     ],
     visibility = [ "//visibility:public" ],
 )

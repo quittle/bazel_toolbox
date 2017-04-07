@@ -9,3 +9,6 @@ run_all_tests()
 
 load(":control_flow_test.bzl", "run_all_tests")
 run_all_tests()
+
+load(":rules.bzl", "run_all_tests")
+run_all_tests()

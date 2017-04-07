@@ -64,3 +64,25 @@ def generate_templated_file(ctx, generate_templated_file_script, template, confi
         executable = generate_templated_file_script,
         outputs = [ out_file ],
     )
+
+def stamp_file(ctx, out_file, content=""):
+    ctx.file_action(
+        output = out_file,
+        content = content,
+    )
+
+def zip_files(ctx, zip_files_script, sources, out_file, strip_prefixes=None):
+    ctx.action(
+        mnemonic = "Zip",
+        arguments = (
+            [ "--sources" ] + [ file.path for file in sources ] +
+            [ "--strip-first", ctx.bin_dir.path + "/", ctx.genfiles_dir.path + "/" ] +
+            (
+                [ "--strip-prefixes" ] + strip_prefixes if strip_prefixes else []
+            ) +
+            [ "--output", out_file.path ]
+        ),
+        inputs = sources,
+        executable = zip_files_script,
+        outputs = [ out_file ],
+    )
