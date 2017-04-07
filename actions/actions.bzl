@@ -75,7 +75,9 @@ def zip_files(ctx, zip_files_script, sources, out_file, strip_prefixes=None):
     ctx.action(
         mnemonic = "Zip",
         arguments = (
-            [ "--sources" ] + [ file.path for file in sources ] +
+            (
+                [ "--sources" ] + [ file.path for file in sources ] if sources else []
+            ) +
             [ "--strip-first", ctx.bin_dir.path + "/", ctx.genfiles_dir.path + "/" ] +
             (
                 [ "--strip-prefixes" ] + strip_prefixes if strip_prefixes else []

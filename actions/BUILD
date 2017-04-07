@@ -31,10 +31,12 @@ py_binary(
     visibility = [ "//visibility:public" ],
 )
 
-py_binary(
+java_binary(
     name = "zip_files",
-    srcs = [
-        "scripts/zip_files.py",
+    srcs = glob([ "scripts/zip_files/java/src/**/*.java" ]),
+    main_class = "com.dustindoloff.zipfiles.Main",
+    deps = [
+        "@org_apache_commons_cli//jar",
     ],
     visibility = [ "//visibility:public" ],
 )

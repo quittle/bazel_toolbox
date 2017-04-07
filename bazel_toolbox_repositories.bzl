@@ -41,3 +41,9 @@ def bazel_toolbox_repositories():
         remote = "https://github.com/pallets/markupsafe.git",
         build_file_content = _MARKUP_SAFE_BUILD_FILE,
     )
+
+    native.maven_jar(
+        name = "org_apache_commons_cli",
+        artifact = "commons-cli:commons-cli:1.4",
+        sha1 = "c51c00206bb913cd8612b24abd9fa98ae89719b1",
+    )
