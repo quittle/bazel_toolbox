@@ -30,7 +30,7 @@ def test_merge_dicts_():
     assert_equal(merge_dicts({"a": [1]}, {"a": [2]}), {"a": [1, 2]})
     assert_equal(merge_dicts({"a": [1]}, {"b": 2, "c": {}}), {"a": [1], "b": 2, "c": {}})
 
-    assert_str_equal(merge_dicts({"a": set([])}, {"a": set([1, 2])}), {"a": set([2, 1])})
+    assert_str_equal(merge_dicts({"a": set([])}, {"a": set([1, 2])}), {"a": set([1, 2])})
 
 def test_dict_to_struct():
     assert_str_equal(dict_to_struct({}), struct())

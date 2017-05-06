@@ -253,7 +253,7 @@ def reverse(collection):
         Reverses a collection.
 
         Args:
-            collection: `dict|list|set` - The collection to reverse
+            collection: `dict|list|depset|set` - The collection to reverse
 
         Returns:
             `dict|list|set` - A new collection of the same type, with items in the reverse order of
@@ -265,7 +265,7 @@ def reverse(collection):
         forward_list = collection.items()
     elif collection_type == "list":
         forward_list = collection
-    elif collection_type == "set":
+    elif collection_type in ["set", "depset"]:
         forward_list = list(collection)
     else:
         fail("Unsupported collection type: " + collection_type)
@@ -279,6 +279,8 @@ def reverse(collection):
         ret = dict(reverse_list)
     elif collection_type == "list":
         ret = reverse_list
+    elif collection_type == "depset":
+        ret = depset(reverse_list)
     elif collection_type == "set":
         ret = set(reverse_list)
     else:
