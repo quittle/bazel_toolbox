@@ -28,7 +28,7 @@ def simple_dict(dictionary):
         `dict` - A dict that contains only dicts, lists, strings, and numbers.
     """
     result = {}
-    stack = [ (result, key, list(value) if type(value) == "set" else value)
+    stack = [ (result, key, list(value) if type(value) in ["depset", "set"] else value)
             for key, value in dictionary.items() ]
     for i in _LONG_LIST:
         if len(stack) == 0:
@@ -37,7 +37,7 @@ def simple_dict(dictionary):
 
         type_value = type(value)
         simple_value = None
-        if type_value == "list":
+        if type_value in ["depset", "list", "set"]:
             simple_value = []
             stack.extend([ (simple_value, None, sub_value) for sub_value in value ])
         elif type_value == "dict":
@@ -50,7 +50,7 @@ def simple_dict(dictionary):
                     for sub_key, sub_value in struct_to_dict(value).items() ])
         elif type_value == "File":
             simple_value = value.path
-        elif type_value in ["number", "string"]:
+        elif type_value in ["bool", "int", "number", "string"]:
             simple_value = value
         elif type_value == "OutputGroupProvider":
             # Not currently iteratable
@@ -201,10 +201,10 @@ def merge_dicts(dict_1, dict_2):
         # The current value for the same key in the container being merged into. This is to enable
         # merging into already generated containers that might be referenced in the stack.
         pre_filled_value = (
-            None if type_value not in ["dict", "list", "set", "struct"] else
+            None if type_value not in ["dict", "list", "depset", "set", "struct"] else
             container[key] if type_container == "dict" and key in container else
             list(container)[list(container).index(value)]
-                    if type_container in ["list", "set"] and value in container else
+                    if type_container in ["list", "depset", "set"] and value in container else
             getattr(container, key) if type_container == "struct" else
             None
         )
@@ -214,7 +214,7 @@ def merge_dicts(dict_1, dict_2):
             simple_value = default_none(pre_filled_value, [])
             stack.extend([ (simple_value, (container, key), None, sub_value)
                     for sub_value in value ])
-        elif type_value == "set":
+        elif type_value in ["depset", "set"]:
             simple_value = default_none(pre_filled_value, set([]))
             stack.extend([ (simple_value, (container, key), None, sub_value)
                     for sub_value in value ])
@@ -237,7 +237,7 @@ def merge_dicts(dict_1, dict_2):
             if key != None:
                 fail("Key should have been None: " + key)
             container.append(simple_value)
-        elif type_container == "set":
+        elif type_container in ["depset", "set"]:
             if key != None:
                 fail("Key should have been None: " + key)
             # Sets are immutable so a new one needs to be created and inserted into the parent. This
