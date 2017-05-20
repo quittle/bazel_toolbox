@@ -11,9 +11,14 @@ load("//assert:assert.bzl",
 
 load("//rules:rules.bzl",
     "zip_files",
+    "zip_runfiles",
 )
 
 def run_all_tests():
+    test_zip_files()
+    test_zip_runfiles()
+
+def test_zip_files():
     test_empty()
     test_full()
     test_full_strip()
@@ -91,3 +96,57 @@ def test_generated_paths_strip():
     )
 
     assert_files_equal("data/nested_stripped.zip", ":test_generated_paths_strip")
+
+def test_zip_runfiles():
+    test_zip_runfiles_deps()
+    test_simple_zip_runfiles()
+    test_single_dep_zip_runfiles()
+    test_complex_zip_runfiles()
+
+def test_zip_runfiles_deps():
+    native.py_library(
+        name = "simple_library",
+        srcs = [ "data/test.py" ],
+    )
+
+    native.py_library(
+        name = "single_dep_library",
+        srcs = [ "data/test.py" ],
+        data = [ "data/file.txt" ],
+    )
+
+    native.py_binary(
+        name = "complex_binary",
+        srcs = [ "data/other.py" ],
+        main = "data/other.py",
+        deps = [
+            ":simple_library",
+            ":single_dep_library",
+        ],
+        data = [
+            "data/empty.txt",
+            "@io_bazel_rules_sass//sass:sassc",
+        ]
+
+    )
+
+def test_simple_zip_runfiles():
+    zip_runfiles(
+        name = "test_simple_library_runfiles",
+        py_library = ":simple_library",
+    )
+    assert_files_equal("data/expected_simple_library_runfiles.zip", ":test_simple_library_runfiles")
+
+def test_single_dep_zip_runfiles():
+    zip_runfiles(
+        name = "test_single_dep_runfiles",
+        py_library = ":single_dep_library",
+    )
+    assert_files_equal("data/expected_single_dep_runfiles.zip", ":test_single_dep_runfiles")
+
+def test_complex_zip_runfiles():
+    zip_runfiles(
+        name = "test_complex_runfiles",
+        py_library = ":complex_binary",
+    )
+    assert_files_equal("data/expected_complex_binary_runfiles.zip", ":test_complex_runfiles")

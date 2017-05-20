@@ -1,8 +1,9 @@
-# Copyright (c) 2016 Dustin Doloff
+# Copyright (c) 2016-2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
 import argparse
 import difflib
+import hashlib
 import os
 
 # Resets color formatting
@@ -19,7 +20,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Asserts files are the same')
     parser.add_argument('--stamp', type=argparse.FileType('w+'), required=True,
                                    help='Stamp file to record action completed')
-    parser.add_argument('--files', type=argparse.FileType('r'), nargs='+', required=True)
+    parser.add_argument('--files', type=str, nargs='+', required=True)
     return parser.parse_args()
 
 def color_diff(text_a, text_b):
@@ -48,6 +49,19 @@ def color_diff(text_a, text_b):
             raise RuntimeError, 'unexpected opcode'
     return colorized_diff, diff
 
+def hash_file(file):
+    """
+        Computes the SHA-256 hash of the file
+        file - The file to hash
+    """
+    hasher = hashlib.sha256()
+    with open(file, 'rb') as f:
+        for block in iter(lambda: f.read(1024), b''):
+            hasher.update(block)
+
+    return hasher.digest()
+
+
 def main():
     args = parse_args()
 
@@ -55,16 +69,21 @@ def main():
 
     assert len(files) >= 2, 'There must be at least two files to compare'
 
+    # Check hashes first
+    if len(set(hash_file(file) for file in files)) == 1:
+        return True
+
+    opened_files = [ open(file, 'rb') for file in files ]
     differ = difflib.Differ()
-    for i in xrange(len(files) - 1):
-        file_a = files[i].read()
-        file_b = files[i + 1].read()
+    for i in xrange(len(opened_files) - 1):
+        file_a = opened_files[i]
+        file_b = opened_files[i + 1]
         # Only reset the latter one as it will be re-used in the next iteration
-        files[i + 1].seek(0)
-        diff, problem = color_diff(file_a, file_b)
+        file_b.seek(0)
+        diff, problem = color_diff(file_a.read(), file_b.read())
         assert not problem, 'File {a} does not match {b}:{newline}{diff}'.format(
-                a = files[i].name,
-                b = files[i + 1].name,
+                a = file_a.name,
+                b = file_b.name,
                 newline = os.linesep,
                 diff = diff)
 

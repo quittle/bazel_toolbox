@@ -7,6 +7,7 @@ load("//labels:labels.bzl",
 
 load(":internal.bzl",
     "zip_files_impl",
+    "zip_runfiles_rule",
 )
 
 zip_files = rule(
@@ -23,3 +24,22 @@ zip_files = rule(
     },
     implementation = zip_files_impl,
 )
+
+def zip_runfiles(name, py_library):
+    zip_binary_script = "{name}__py_binary".format(name=name)
+
+    native.py_binary(
+        name = zip_binary_script,
+        main = "zip_runfiles.py",
+        srcs = [
+            "@bazel_toolbox//rules:zip_runfiles",
+        ],
+        deps = [
+            py_library,
+        ],
+    )
+
+    zip_runfiles_rule(
+        name = name,
+        binary = ":" + zip_binary_script,
+    )

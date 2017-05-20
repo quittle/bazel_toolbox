@@ -13,4 +13,3 @@ git_repository(
 )
 load("@io_bazel_rules_sass//sass:sass.bzl", "sass_repositories")
 sass_repositories()
-
