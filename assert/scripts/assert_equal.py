@@ -5,6 +5,8 @@ import argparse
 import difflib
 import hashlib
 import os
+import subprocess
+import zipfile
 
 # Resets color formatting
 COLOR_END = '\33[0m'
@@ -61,6 +63,22 @@ def hash_file(file):
 
     return hasher.digest()
 
+def summarize(file):
+    """
+        Summarizes a file via it's metadata to provide structured text for diffing
+    """
+    summary = None
+    if zipfile.is_zipfile(file):
+        with zipfile.ZipFile(file) as zf:
+            summary = ''
+            for info in zf.infolist():
+                summary += 'Entry: ('
+                summary += ', '.join(s + ': ' + repr(getattr(info, s)) for s in info.__slots__)
+                summary += ') ' + os.linesep
+
+    assert summary is not None, 'Unable to summarize %s' % file
+    return summary
+
 
 def main():
     args = parse_args()
@@ -69,23 +87,37 @@ def main():
 
     assert len(files) >= 2, 'There must be at least two files to compare'
 
-    # Check hashes first
-    if len(set(hash_file(file) for file in files)) == 1:
-        return True
+    files_hashes = set()
+    max_file_size = 0
+    for file in files:
+        files_hashes.add(hash_file(file))
+        max_file_size = max(max_file_size, os.stat(file).st_size)
 
-    opened_files = [ open(file, 'rb') for file in files ]
-    differ = difflib.Differ()
-    for i in xrange(len(opened_files) - 1):
-        file_a = opened_files[i]
-        file_b = opened_files[i + 1]
-        # Only reset the latter one as it will be re-used in the next iteration
-        file_b.seek(0)
-        diff, problem = color_diff(file_a.read(), file_b.read())
-        assert not problem, 'File {a} does not match {b}:{newline}{diff}'.format(
-                a = file_a.name,
-                b = file_b.name,
-                newline = os.linesep,
-                diff = diff)
+    # Check hashes first
+    if len(files_hashes) != 1:
+        for i in xrange(len(files) - 1):
+            file_a = files[i]
+            file_b = files[i + 1]
+
+            file_a_contents = None
+            file_b_contents = None
+            if max_file_size > 1024 * 1024:
+                file_a_contents = summarize(file_a)
+                file_b_contents = summarize(file_b)
+            else:
+                with open(file_a, 'rb') as a:
+                    file_a_contents = a.read()
+                with open(file_b, 'rb') as b:
+                    file_b_contents = b.read()
+
+            diff, problem = color_diff(file_a_contents, file_b_contents)
+            assert not problem, 'File {a} does not match {b}:{newline}{diff}'.format(
+                    a = file_a,
+                    b = file_b,
+                    newline = os.linesep,
+                    diff = diff)
+
+        assert False, 'File hashes don\'t match.'
 
     with args.stamp as stamp_file:
         stamp_file.write(str(args))

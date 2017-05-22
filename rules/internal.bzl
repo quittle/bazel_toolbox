@@ -19,6 +19,7 @@ def _zip_runfiles_impl(ctx):
                 ctx.executable.binary.path,
                 ctx.attr.binary.files_to_run.executable.path,
             ],
+        inputs =  [ ctx.executable.binary ],
         executable = ctx.executable.binary,
         outputs = [ ctx.outputs.zip, ],
     )

@@ -125,7 +125,7 @@ def test_zip_runfiles_deps():
         ],
         data = [
             "data/empty.txt",
-            "@io_bazel_rules_sass//sass:sassc",
+            "@markup_safe//:markup_safe",
         ]
 
     )
