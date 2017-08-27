@@ -30,14 +30,14 @@ def bazel_toolbox_repositories():
     """
     native.new_git_repository(
         name = "jinja",
-        commit = "966e1a409f02de57b75a0463fc953d54dad2a205", # 2.8
+        commit = "d78a1b079cd985eea7d636f79124ab4fc44cb538", # 2.9.6
         remote = "https://github.com/pallets/jinja.git",
         build_file_content = _JINJA_BUILD_FILE,
     )
 
     native.new_git_repository(
         name = "markup_safe",
-        commit = "feb1d70c16df62f60dcb521d127fdad8819fc036", # 0.23
+        commit = "d2a40c41dd1930345628ea9412d97e159f828157", # 1.0
         remote = "https://github.com/pallets/markupsafe.git",
         build_file_content = _MARKUP_SAFE_BUILD_FILE,
     )
