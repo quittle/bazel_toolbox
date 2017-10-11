@@ -51,9 +51,6 @@ def simple_dict_rule_impl(ctx):
                 "file_list": [
                     "test/data/file.txt",
                 ],
-                "file_set": [
-                    "test/data/file.txt",
-                ],
                 "number": 123,
                 "string": "string",
             }
@@ -68,7 +65,6 @@ def simple_dict_rule_impl(ctx):
         file = src,
         file_depset = depset([ src ]),
         file_list = [ src ],
-        file_set = set([ src ]),
         file_dict = { src.short_path: src },
         complex_dict = {
             src.short_path: "string",
@@ -99,12 +95,10 @@ simple_dict_rule = rule(
 def test_simple_dict():
     assert_equal(simple_dict({}), {})
     assert_equal(simple_dict({"a": []}), {"a": []})
-    assert_equal(simple_dict({"a": set([])}), {"a": []})
     assert_equal(simple_dict({"a": depset([])}), {"a": []})
 
     assert_equal(simple_dict({"a": { "b": {} }}), { "a": { "b": {}}})
     assert_equal(simple_dict({"a": { "b": [] }}), { "a": { "b": []}})
-    assert_equal(simple_dict({"a": { "b": set([]) }}), { "a": { "b": []}})
     assert_equal(simple_dict({"a": { "b": depset([]) }}), { "a": { "b": []}})
 
     test_simple_dict_rule()
@@ -132,7 +126,7 @@ def test_merge_dicts():
     assert_equal(merge_dicts({"a": [1]}, {"a": [2]}), {"a": [1, 2]})
     assert_equal(merge_dicts({"a": [1]}, {"b": 2, "c": {}}), {"a": [1], "b": 2, "c": {}})
 
-    assert_str_equal(merge_dicts({"a": set([])}, {"a": set([1, 2])}), {"a": set([2, 1])})
+    assert_str_equal(merge_dicts({"a": depset([])}, {"a": depset([1, 2])}), {"a": depset([2, 1])})
 
 def test_dict_to_struct():
     assert_str_equal(dict_to_struct({}), struct())
@@ -140,14 +134,14 @@ def test_dict_to_struct():
     assert_str_equal(
         dict_to_struct({
             "nested_list": [[ "a" ]],
-            "set":  set([ 1, 2 ]),
+            "set":  depset([ 1, 2 ]),
             "dict": {
                 "a": "b",
             }
         }),
         struct(
             nested_list = [[ "a" ]],
-            set = set([ 1, 2 ]),
+            set = depset([ 1, 2 ]),
             dict = {
                 "a": "b",
             },
@@ -164,7 +158,7 @@ def test_struct_to_dict():
             struct_in_list = [struct(
                 key = "value",
             )],
-            set = set([ 1, 2 ]),
+            set = depset([ 1, 2 ]),
             struct = struct(
                 a = "b",
             ),
@@ -176,7 +170,7 @@ def test_struct_to_dict():
             "struct": {
                 "a": "b",
             },
-            "set":  set([ 1, 2 ]),
+            "set": depset([ 1, 2 ]),
             "nested_list": [[ "a" ]],
             "dict_in_list": [{ "key": "value" }],
         }
@@ -184,9 +178,9 @@ def test_struct_to_dict():
 
 def test_reverse():
     assert_str_equal([], reverse([]))
-    assert_str_equal(set([]), reverse(set([])))
+    assert_str_equal(depset([]), reverse(depset([])))
     assert_str_equal({}, reverse({}))
 
     assert_str_equal([1, 2, 3], reverse([3, 2, 1]))
-    assert_str_equal(set([1, 2, 3]), reverse(set([3, 2, 1])))
+    assert_str_equal(depset([1, 2, 3]), reverse(depset([3, 2, 1])))
     assert_str_equal({"a": 1, "b": 2, "c": 3}, reverse({"c": 3, "b": 2, "a": 1}))

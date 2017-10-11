@@ -28,7 +28,7 @@ def simple_dict(dictionary):
         `dict` - A dict that contains only dicts, lists, strings, and numbers.
     """
     result = {}
-    stack = [ (result, key, list(value) if type(value) in ["depset", "set"] else value)
+    stack = [ (result, key, list(value) if type(value) == "depset" else value)
             for key, value in dictionary.items() ]
     for i in _LONG_LIST:
         if len(stack) == 0:
@@ -37,7 +37,7 @@ def simple_dict(dictionary):
 
         type_value = type(value)
         simple_value = None
-        if type_value in ["depset", "list", "set"]:
+        if type_value in ["depset", "list"]:
             simple_value = []
             stack.extend([ (simple_value, None, sub_value) for sub_value in value ])
         elif type_value == "dict":
@@ -129,10 +129,10 @@ def struct_to_dict(structure):
         elif type_value == "list":
             new_value = []
             stack.extend([ (new_value, None, sub_value) for sub_value in value ])
-        # No need to worry about sets, which aren't mutable, because they cannot contain mutable
-        # items or sets. Even though they can contain structs, the dicts they'd be converted to
+        # No need to worry about depsets, which aren't mutable, because they cannot contain mutable
+        # objects or depsets. Even though they can contain structs, the dicts they'd be converted to
         # wouldn't be allowed inside. Then if those structs were ignored, it wouldn't matter anyway
-        # as nothing would need to be changed inside the set so no need to loop through the set's
+        # as nothing would need to be changed inside the set so no need to loop through the depset's
         # contents.
 
         if key != None:
@@ -201,10 +201,10 @@ def merge_dicts(dict_1, dict_2):
         # The current value for the same key in the container being merged into. This is to enable
         # merging into already generated containers that might be referenced in the stack.
         pre_filled_value = (
-            None if type_value not in ["dict", "list", "depset", "set", "struct"] else
+            None if type_value not in ["dict", "list", "depset", "struct"] else
             container[key] if type_container == "dict" and key in container else
             list(container)[list(container).index(value)]
-                    if type_container in ["list", "depset", "set"] and value in container else
+                    if type_container in ["list", "depset"] and value in container else
             getattr(container, key) if type_container == "struct" else
             None
         )
@@ -214,8 +214,8 @@ def merge_dicts(dict_1, dict_2):
             simple_value = default_none(pre_filled_value, [])
             stack.extend([ (simple_value, (container, key), None, sub_value)
                     for sub_value in value ])
-        elif type_value in ["depset", "set"]:
-            simple_value = default_none(pre_filled_value, set([]))
+        elif type_value == "depset":
+            simple_value = default_none(pre_filled_value, depset([]))
             stack.extend([ (simple_value, (container, key), None, sub_value)
                     for sub_value in value ])
         elif type_value == "dict":
@@ -237,12 +237,12 @@ def merge_dicts(dict_1, dict_2):
             if key != None:
                 fail("Key should have been None: " + key)
             container.append(simple_value)
-        elif type_container in ["depset", "set"]:
+        elif type_container == "depset":
             if key != None:
                 fail("Key should have been None: " + key)
-            # Sets are immutable so a new one needs to be created and inserted into the parent. This
-            # can't chain because sets can't contain mutable objects or other sets.
-            parent[parent_key] += set([ simple_value ])
+            # Depsets are immutable so a new one needs to be created and inserted into the parent.
+            # This can't chain because depsets can't contain mutable objects or other depsets.
+            parent[parent_key] += depset([ simple_value ])
         else:
             fail("Container of invalid type: " + type_container)
 
@@ -253,11 +253,11 @@ def reverse(collection):
         Reverses a collection.
 
         Args:
-            collection: `dict|list|depset|set` - The collection to reverse
+            collection: `dict|list|depset` - The collection to reverse
 
         Returns:
-            `dict|list|set` - A new collection of the same type, with items in the reverse order of
-                              the input collection.
+            `dict|list|depset` - A new collection of the same type, with items in the reverse order
+                                 of the input collection.
     """
     forward_list = None
     collection_type = type(collection)
@@ -265,7 +265,7 @@ def reverse(collection):
         forward_list = collection.items()
     elif collection_type == "list":
         forward_list = collection
-    elif collection_type in ["set", "depset"]:
+    elif collection_type == "depset":
         forward_list = list(collection)
     else:
         fail("Unsupported collection type: " + collection_type)
@@ -281,8 +281,6 @@ def reverse(collection):
         ret = reverse_list
     elif collection_type == "depset":
         ret = depset(reverse_list)
-    elif collection_type == "set":
-        ret = set(reverse_list)
     else:
         fail("Unsupported collection type: " + collection_type)
 
