@@ -6,9 +6,17 @@ load("//labels:labels.bzl",
 )
 
 load(":internal.bzl",
+    "generate_bin_file",
+    "generate_gen_file",
     "zip_files_impl",
     "zip_runfiles_rule",
 )
+
+def generate_file(name, contents, file, bin_file):
+    if bin_file:
+        generate_bin_file(name = name, contents = contents, file = file)
+    else:
+        generate_gen_file(name = name, contents = contents, file = file)
 
 zip_files = rule(
     attrs = {

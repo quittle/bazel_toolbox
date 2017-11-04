@@ -7,16 +7,41 @@ load("//actions:actions.bzl",
 
 load("//assert:assert.bzl",
     "assert_files_equal",
+    "assert_label_providers",
 )
 
 load("//rules:rules.bzl",
+    "generate_file",
     "zip_files",
     "zip_runfiles",
 )
 
 def run_all_tests():
+    test_generate_file()
     test_zip_files()
     test_zip_runfiles()
+
+def test_generate_file():
+    test_generate_bin_file()
+    test_generate_gen_file()
+
+def test_generate_bin_file():
+    generate_file(
+        name = "test_generate_bin_file",
+        contents = "contents",
+        bin_file = True,
+        file = "test_generate_bin_file.txt",
+    )
+    assert_files_equal("data/contents.txt", ":test_generate_bin_file")
+
+def test_generate_gen_file():
+    generate_file(
+        name = "test_generate_gen_file",
+        contents = "contents",
+        bin_file = False,
+        file = "test_generate_gen_file.txt",
+    )
+    assert_files_equal("data/contents.txt", ":test_generate_gen_file")
 
 def test_zip_files():
     test_empty()
@@ -39,6 +64,8 @@ def test_full():
         srcs = [
             "data/file.txt",
             "data/template.txt",
+            ":test_generate_bin_file",
+            ":test_generate_gen_file",
         ],
     )
 
@@ -50,9 +77,12 @@ def test_full_strip():
         srcs = [
             "data/file.txt",
             "data/template.txt",
+            ":test_generate_bin_file",
+            ":test_generate_gen_file",
         ],
         strip_prefixes = [
-            "test/data",
+            "test/",
+            "test/data/",
         ],
     )
 
