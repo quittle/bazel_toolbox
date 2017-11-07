@@ -1,0 +1,14 @@
+# Copyright (c) 2017 Dustin Doloff
+# Licensed under Apache License v2.0
+
+build --strict_java_deps error
+build --javacopt -Werror
+build --javacopt -XepAllDisabledChecksAsWarnings
+# Broken in Bazel 0.6.1-0.7.0. See https://github.com/google/error-prone/issues/777
+build --javacopt -Xep:FieldMissingNullable:OFF
+build --javacopt -Xep:Var:OFF
+
+# Unable to use javawarn as that will inject the same thing, but after the java_* target's
+# overrides. This makes it impossible to disable warning for external dependencies.
+# build --javawarn all
+build --javacopt -Xlint:all

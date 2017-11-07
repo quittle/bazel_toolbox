@@ -66,7 +66,7 @@ public final class Main {
                     .build());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     private static <T> T getOption(final CommandLine commandLine, final String arg) {
         try {
             return (T) commandLine.getParsedOptionValue(arg);
@@ -133,4 +133,6 @@ public final class Main {
             }
         }
     }
+
+    private Main() {}
 }
