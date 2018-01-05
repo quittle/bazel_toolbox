@@ -37,6 +37,7 @@ java_binary(
     main_class = "com.dustindoloff.zipfiles.Main",
     deps = [
         "@org_apache_commons_cli//jar",
+        "@org_apache_commons_io//jar",
     ],
     visibility = [ "//visibility:public" ],
 )

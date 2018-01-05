@@ -47,3 +47,9 @@ def bazel_toolbox_repositories():
         artifact = "commons-cli:commons-cli:1.4",
         sha1 = "c51c00206bb913cd8612b24abd9fa98ae89719b1",
     )
+
+    native.maven_jar(
+        name = "org_apache_commons_io",
+        artifact = "commons-io:commons-io:2.6",
+        sha1 = "815893df5f31da2ece4040fe0a12fd44b577afaf",
+    )

@@ -20,6 +20,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Contains the main function and argument parsing capabilities
@@ -30,8 +31,35 @@ public final class Main {
     private static final String ARG_STRIP_PREFIXES = "strip-prefixes";
     private static final String ARG_OUTPUT = "output";
 
+    /** The ZIP format supports 1-1-1980 as the epoch start date. */
+    private static final long EPOCH_DATE = 315532800000L;
+
     private static final Comparator<String> STRING_LENGTH_HIGH_TO_LOW_COMPARATOR =
             (final String a, final String b) -> b.length() - a.length();
+
+    private static class Pair<A, B> {
+        private final A a;
+        private final B b;
+
+        public Pair(final A a, final B b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public A getFirst() {
+            return a;
+        }
+
+        public B getSecond() {
+            return b;
+        }
+    }
+
+    private static class StringPair extends Pair<String, String> {
+        public StringPair(final String a, final String b) {
+            super(a, b);
+        }
+    }
 
     private static Options buildOptions() {
         return new Options()
@@ -75,6 +103,15 @@ public final class Main {
         }
     }
 
+    private static String[] getOptionValuesDefault(final CommandLine commandLine, final String arg) {
+        final String[] values = commandLine.getOptionValues(arg);
+        if (values == null) {
+            return new String[0];
+        } else {
+            return values;
+        }
+    }
+
     public static void main(final String[] args) throws IOException {
         final Options options = buildOptions();
         final CommandLineParser parser = new DefaultParser();
@@ -88,22 +125,10 @@ public final class Main {
             return;
         }
 
-        String[] sources = commandLine.getOptionValues(ARG_SOURCES);
-        String[] stripFirst = commandLine.getOptionValues(ARG_STRIP_FIRST);
-        String[] stripPrefixes = commandLine.getOptionValues(ARG_STRIP_PREFIXES);
+        final String[] sources = getOptionValuesDefault(commandLine, ARG_SOURCES);
+        final String[] stripFirst = getOptionValuesDefault(commandLine, ARG_STRIP_FIRST);
+        final String[] stripPrefixes = getOptionValuesDefault(commandLine, ARG_STRIP_PREFIXES);
         final File output = getOption(commandLine, ARG_OUTPUT);
-
-        if (sources == null) {
-            sources = new String[0];
-        }
-
-        if (stripFirst == null) {
-            stripFirst = new String[0];
-        }
-
-        if (stripPrefixes == null) {
-            stripPrefixes = new String[0];
-        }
 
         Arrays.sort(stripFirst, STRING_LENGTH_HIGH_TO_LOW_COMPARATOR);
         Arrays.sort(stripPrefixes, STRING_LENGTH_HIGH_TO_LOW_COMPARATOR);
@@ -111,26 +136,41 @@ public final class Main {
         try (final ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(output))) {
             zos.setLevel(Deflater.NO_COMPRESSION);
 
-            for (final String source : sources) {
-                String name = source;
-                for (final String prefix : stripFirst) {
-                    if (name.startsWith(prefix)) {
-                        name = name.substring(prefix.length());
-                        break;
+            Arrays.stream(sources)
+                .map((final String source) -> {
+                    for (final String prefix : stripFirst) {
+                        if (source.startsWith(prefix)) {
+                            return new StringPair(source, source.substring(prefix.length()));
+                        }
                     }
-                }
-                for (final String prefix : stripPrefixes) {
-                    if (name.startsWith(prefix)) {
-                        name = name.substring(prefix.length());
-                        break;
+                    return new StringPair(source, source);
+                })
+                .map((final StringPair sourcePair) -> {
+                    final String shortenedSource = sourcePair.getSecond();
+                    for (final String prefix : stripPrefixes) {
+                        if (shortenedSource.startsWith(prefix)) {
+                            return new StringPair(sourcePair.getFirst(), shortenedSource.substring(prefix.length()));
+                        }
                     }
-                }
-                final ZipEntry zipEntry = new ZipEntry(name);
-                zipEntry.setTime(0); // Reset date for build consistency
-                zos.putNextEntry(zipEntry);
-                Files.copy(new File(source).toPath(), zos);
-                zos.closeEntry();
-            }
+                    return sourcePair;
+                })
+                .sorted((final StringPair a, final StringPair b) -> a.getSecond().compareTo(b.getSecond()))
+                .forEach((final Pair<String, String> sourcePair) -> {
+                    final File sourceFile = new File(sourcePair.getFirst());
+                    final ZipEntry zipEntry = new ZipEntry(sourcePair.getSecond());
+                    zipEntry.setTime(EPOCH_DATE); // Reset date for build consistency
+                    zipEntry.setMethod(ZipEntry.STORED);
+                    zipEntry.setSize(sourceFile.length());
+                    zipEntry.setCompressedSize(sourceFile.length());
+                    try {
+                        zipEntry.setCrc(FileUtils.checksumCRC32(sourceFile));
+                        zos.putNextEntry(zipEntry);
+                        Files.copy(sourceFile.toPath(), zos);
+                        zos.closeEntry();
+                    } catch (final IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         }
     }
 
