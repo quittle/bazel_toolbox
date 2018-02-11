@@ -1,5 +1,7 @@
-# Copyright (c) 2017 Dustin Doloff
+# Copyright (c) 2017-2018 Dustin Doloff
 # Licensed under Apache License v2.0
+
+load("@bazel_repository_toolbox//:github_repository.bzl", "new_github_repository")
 
 _JINJA_BUILD_FILE = """
 
@@ -28,17 +30,21 @@ def bazel_toolbox_repositories():
     """
         Adds all the necessary repositories to the workspace.
     """
-    native.new_git_repository(
+    new_github_repository(
         name = "jinja",
-        commit = "d78a1b079cd985eea7d636f79124ab4fc44cb538", # 2.9.6
-        remote = "https://github.com/pallets/jinja.git",
+        user = "pallets",
+        project = "jinja",
+        tag = "2.10",
+        sha256 = "0d31d3466c313a9ca014a2d904fed18cdac873a5ba1f7b70b8fd8b206cd860d6",
         build_file_content = _JINJA_BUILD_FILE,
     )
 
-    native.new_git_repository(
+    new_github_repository(
         name = "markup_safe",
-        commit = "d2a40c41dd1930345628ea9412d97e159f828157", # 1.0
-        remote = "https://github.com/pallets/markupsafe.git",
+        user = "pallets",
+        project = "markupsafe",
+        tag = "1.0",
+        sha256 = "dc3938045d9407a73cf9fdd709e2b1defd0588d50ffc85eb0786c095ec846f15",
         build_file_content = _MARKUP_SAFE_BUILD_FILE,
     )
 
