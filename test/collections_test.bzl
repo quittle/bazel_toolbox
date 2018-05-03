@@ -32,6 +32,7 @@ def simple_dict_rule_impl(ctx):
         sd = simple_dict(struct_to_dict(ctx.attr.src))
         assert_equal(sd,
             {
+                "actions": [ None ],
                 "boolean": True,
                 "complex_dict": {
                     "test/data/file.txt": "string",

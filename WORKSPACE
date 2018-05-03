@@ -6,7 +6,7 @@ workspace(name = "bazel_toolbox")
 git_repository(
     name = "bazel_repository_toolbox",
     remote = "https://github.com/quittle/bazel_repository_toolbox",
-    commit = "dfffafc08ec40df1b5ef1fbe0fbe77e643f6c672",
+    commit = "c9d29e8b3ff5e6bf11819cf6c34e53e6502f6b3c",
 )
 
 load("@bazel_repository_toolbox//:github_repository.bzl", "github_repository")

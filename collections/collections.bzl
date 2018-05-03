@@ -52,7 +52,7 @@ def simple_dict(dictionary):
             simple_value = value.path
         elif type_value in ["bool", "int", "number", "string"]:
             simple_value = value
-        elif type_value == "OutputGroupProvider":
+        elif type_value in ["Action", "OutputGroupProvider"]:
             # Not currently iteratable
             pass
         else:
