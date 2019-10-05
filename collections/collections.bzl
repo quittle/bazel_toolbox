@@ -1,7 +1,8 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load(":internal.bzl",
+load(
+    ":internal.bzl",
     "DEFAULT_TARGET_STRUCT_KEYS",
     "default_none",
 )
@@ -14,7 +15,7 @@ load(":internal.bzl",
 
 # Due to restrictions of the language, the only loop supported is a for-in loop, so a long iterable
 # is needed to simulate a while-do loop
-_LONG_LIST = 10000 * "."
+_LONG_LIST = (10000 * ".").split("")
 
 def simple_dict(dictionary):
     """
@@ -28,8 +29,10 @@ def simple_dict(dictionary):
         `dict` - A dict that contains only dicts, lists, strings, and numbers.
     """
     result = {}
-    stack = [ (result, key, list(value) if type(value) == "depset" else value)
-            for key, value in dictionary.items() ]
+    stack = [
+        (result, key, value.to_list() if type(value) == "depset" else value)
+        for key, value in dictionary.items()
+    ]
     for i in _LONG_LIST:
         if len(stack) == 0:
             break
@@ -37,17 +40,24 @@ def simple_dict(dictionary):
 
         type_value = type(value)
         simple_value = None
-        if type_value in ["depset", "list"]:
+        if type_value == "depset":
             simple_value = []
-            stack.extend([ (simple_value, None, sub_value) for sub_value in value ])
+            stack.extend([(simple_value, None, sub_value) for sub_value in value.to_list()])
+        elif type_value == "list":
+            simple_value = []
+            stack.extend([(simple_value, None, sub_value) for sub_value in value])
         elif type_value == "dict":
             simple_value = {}
-            stack.extend([ (simple_value, sub_key, sub_value)
-                    for sub_key, sub_value in value.items() ])
+            stack.extend([
+                (simple_value, sub_key, sub_value)
+                for sub_key, sub_value in value.items()
+            ])
         elif type_value == "struct":
             simple_value = {}
-            stack.extend([ (simple_value, sub_key, sub_value)
-                    for sub_key, sub_value in struct_to_dict(value).items() ])
+            stack.extend([
+                (simple_value, sub_key, sub_value)
+                for sub_key, sub_value in struct_to_dict(value).items()
+            ])
         elif type_value == "File":
             simple_value = value.path
         elif type_value in ["bool", "int", "number", "string"]:
@@ -103,13 +113,13 @@ def struct_to_dict(structure):
         `dict` - A dict representation of the struct
     """
     structure_type = type(structure)
-    if structure_type not in [ "struct", "Target" ]:
+    if structure_type not in ["struct", "Target"]:
         fail("Expected a struct or Target, but got " + structure_type)
 
     contents = get_struct_entries(structure)
 
     result = {}
-    stack = [ (result, entry, getattr(structure, entry)) for entry in contents ]
+    stack = [(result, entry, getattr(structure, entry)) for entry in contents]
     for i in _LONG_LIST:
         if len(stack) == 0:
             break
@@ -120,15 +130,20 @@ def struct_to_dict(structure):
         type_value = type(value)
         if type_value == "struct":
             new_value = {}
-            stack.extend([ (new_value, entry, getattr(value, entry))
-                    for entry in get_struct_entries(value) ])
+            stack.extend([
+                (new_value, entry, getattr(value, entry))
+                for entry in get_struct_entries(value)
+            ])
         elif type_value == "dict":
             new_value = {}
-            stack.extend([ (new_value, sub_key, sub_value)
-                    for sub_key, sub_value in value.items() ])
+            stack.extend([
+                (new_value, sub_key, sub_value)
+                for sub_key, sub_value in value.items()
+            ])
         elif type_value == "list":
             new_value = []
-            stack.extend([ (new_value, None, sub_value) for sub_value in value ])
+            stack.extend([(new_value, None, sub_value) for sub_value in value])
+
         # No need to worry about depsets, which aren't mutable, because they cannot contain mutable
         # objects or depsets. Even though they can contain structs, the dicts they'd be converted to
         # wouldn't be allowed inside. Then if those structs were ignored, it wouldn't matter anyway
@@ -185,12 +200,16 @@ def merge_dicts(dict_1, dict_2):
                      second dict's conents are added to the first's.
     """
     result = {}
+
     # First item needs to be inserted last so that it overrides values from the second
-    stack = [ (result, (None, None), key, value)
-            for key, value in dict_2.items() + dict_1.items() ]
+    stack = [
+        (result, (None, None), key, value)
+        for key, value in dict_2.items() + dict_1.items()
+    ]
     for i in _LONG_LIST:
         if len(stack) == 0:
             break
+
         # parent is the parent of container and parent_key is the key for parent that accesses
         # container.
         container, (parent, parent_key), key, value = stack.pop()
@@ -201,31 +220,34 @@ def merge_dicts(dict_1, dict_2):
         # The current value for the same key in the container being merged into. This is to enable
         # merging into already generated containers that might be referenced in the stack.
         pre_filled_value = (
-            None if type_value not in ["dict", "list", "depset", "struct"] else
-            container[key] if type_container == "dict" and key in container else
-            list(container)[list(container).index(value)]
-                    if type_container in ["list", "depset"] and value in container else
-            getattr(container, key) if type_container == "struct" else
-            None
+            None if type_value not in ["dict", "list", "depset", "struct"] else container[key] if type_container == "dict" and key in container else list(container)[list(container).index(value)] if type_container in ["list", "depset"] and value in container else getattr(container, key) if type_container == "struct" else None
         )
 
         simple_value = None
         if type_value == "list":
             simple_value = default_none(pre_filled_value, [])
-            stack.extend([ (simple_value, (container, key), None, sub_value)
-                    for sub_value in value ])
+            stack.extend([
+                (simple_value, (container, key), None, sub_value)
+                for sub_value in value
+            ])
         elif type_value == "depset":
             simple_value = default_none(pre_filled_value, depset([]))
-            stack.extend([ (simple_value, (container, key), None, sub_value)
-                    for sub_value in value ])
+            stack.extend([
+                (simple_value, (container, key), None, sub_value)
+                for sub_value in value.to_list()
+            ])
         elif type_value == "dict":
             simple_value = default_none(pre_filled_value, {})
-            stack.extend([ (simple_value, (container, key), sub_key, sub_value)
-                    for sub_key, sub_value in value.items() ])
+            stack.extend([
+                (simple_value, (container, key), sub_key, sub_value)
+                for sub_key, sub_value in value.items()
+            ])
         elif type_value == "struct":
-            simple_value = default_none(pre_filled_value, {}) # Convert this out of laziness
-            stack.extend([ (simple_value, (container, key), sub_key, sub_value)
-                    for sub_key, sub_value in struct_to_dict(value).items() ])
+            simple_value = default_none(pre_filled_value, {})  # Convert this out of laziness
+            stack.extend([
+                (simple_value, (container, key), sub_key, sub_value)
+                for sub_key, sub_value in struct_to_dict(value).items()
+            ])
         else:
             simple_value = value
 
@@ -240,9 +262,12 @@ def merge_dicts(dict_1, dict_2):
         elif type_container == "depset":
             if key != None:
                 fail("Key should have been None: " + key)
+
             # Depsets are immutable so a new one needs to be created and inserted into the parent.
-            # This can't chain because depsets can't contain mutable objects or other depsets.
-            parent[parent_key] += depset([ simple_value ])
+            # This can't chain because depsets can't contain mutable objects or other depsets and
+            # do not support the `+` operator.
+            original = parent[parent_key].to_list()
+            parent[parent_key] = depset(original + [simple_value])
         else:
             fail("Container of invalid type: " + type_container)
 
@@ -266,7 +291,7 @@ def reverse(collection):
     elif collection_type == "list":
         forward_list = collection
     elif collection_type == "depset":
-        forward_list = list(collection)
+        forward_list = collection.to_list()
     else:
         fail("Unsupported collection type: " + collection_type)
 

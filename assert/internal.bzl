@@ -1,29 +1,35 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//collections:collections.bzl",
+load(
+    "//collections:collections.bzl",
     "simple_dict",
     "struct_to_dict",
 )
-
-load("//labels:labels.bzl",
+load(
+    "//labels:labels.bzl",
     "executable_label",
 )
 
 def _assert_files_equal_impl(ctx):
-    ctx.action(
+    ctx.actions.run(
         mnemonic = "AssertingFilesAreEqual",
         arguments = [
-            "--files", ctx.file.expected_file.path, ctx.file.actual_file.path,
-            "--stamp", ctx.outputs.stamp_file.path,
+            "--files",
+            ctx.file.expected_file.path,
+            ctx.file.actual_file.path,
+            "--stamp",
+            ctx.outputs.stamp_file.path,
         ],
         inputs = [
-            ctx.executable._assert_files_equal,
             ctx.file.expected_file,
             ctx.file.actual_file,
         ],
+        tools = [
+            ctx.executable._assert_files_equal,
+        ],
         executable = ctx.executable._assert_files_equal,
-        outputs = [ ctx.outputs.stamp_file ]
+        outputs = [ctx.outputs.stamp_file],
     )
 
 assert_files_equal_rule = rule(
@@ -46,13 +52,13 @@ assert_files_equal_rule = rule(
 
 def _assert_label_struct_impl(ctx):
     actual_dict = str(simple_dict(struct_to_dict(ctx.attr.label)))
-    expected_dict = (ctx.attr.expected_struct_string
-            .replace("{BIN_DIR}", ctx.bin_dir.path)
-            .replace("{GEN_DIR}", ctx.genfiles_dir.path))
+    expected_dict = (ctx.attr.expected_struct_string.replace("{BIN_DIR}", ctx.bin_dir.path).replace("{GEN_DIR}", ctx.genfiles_dir.path))
     if actual_dict != expected_dict:
         fail("label struct does not match expected struct. " +
-             "Expected: {expected} Actual: {actual}".format(expected = expected_dict,
-                                                            actual = actual_dict))
+             "Expected: {expected} Actual: {actual}".format(
+                 expected = expected_dict,
+                 actual = actual_dict,
+             ))
 
     ctx.file_action(
         content = "",

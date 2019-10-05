@@ -25,6 +25,9 @@ def parse_args():
     parser.add_argument('--files', type=str, nargs='+', required=True)
     return parser.parse_args()
 
+def bytes_to_str(bytes):
+    return bytes.decode('utf-8', 'backslashreplace')
+
 def color_diff(text_a, text_b):
     """
         Compares two pieces of text and returns a tuple
@@ -36,19 +39,19 @@ def color_diff(text_a, text_b):
     diff = False
     for opcode, a0, a1, b0, b1 in sequence_matcher.get_opcodes():
         if opcode == 'equal':
-            colorized_diff += sequence_matcher.a[a0:a1]
+            colorized_diff += bytes_to_str(sequence_matcher.a[a0:a1])
         elif opcode == 'insert':
-            colorized_diff += COLOR_BOLD + COLOR_GREEN + sequence_matcher.b[b0:b1] + COLOR_END
+            colorized_diff += COLOR_BOLD + COLOR_GREEN + bytes_to_str(sequence_matcher.b[b0:b1]) + COLOR_END
             diff = True
         elif opcode == 'delete':
-            colorized_diff += COLOR_BOLD + COLOR_RED + sequence_matcher.a[a0:a1] + COLOR_END
+            colorized_diff += COLOR_BOLD + COLOR_RED + bytes_to_str(sequence_matcher.a[a0:a1]) + COLOR_END
             diff = True
         elif opcode == 'replace':
-            colorized_diff += (COLOR_BOLD + COLOR_YELLOW + sequence_matcher.a[a0:a1] +
-                               COLOR_DISABLED + sequence_matcher.b[b0:b1] + COLOR_END)
+            colorized_diff += (COLOR_BOLD + COLOR_YELLOW + bytes_to_str(sequence_matcher.a[a0:a1]) +
+                               COLOR_DISABLED + bytes_to_str(sequence_matcher.b[b0:b1]) + COLOR_END)
             diff = True
         else:
-            raise RuntimeError, 'unexpected opcode'
+            raise RuntimeError('unexpected opcode ' + opcode)
     return colorized_diff, diff
 
 def hash_file(file):
@@ -95,7 +98,7 @@ def main():
 
     # Check hashes first
     if len(files_hashes) != 1:
-        for i in xrange(len(files) - 1):
+        for i in range(len(files) - 1):
             file_a = files[i]
             file_b = files[i + 1]
 

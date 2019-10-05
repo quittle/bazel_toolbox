@@ -20,15 +20,18 @@ def file_copy(ctx, file_copy_script, source_file, destination_file):
     if type(destination_file) != "File":
         fail("destination_file was not a file")
 
-    ctx.action(
+    ctx.actions.run(
         mnemonic = "CopyFile",
         arguments = [
-            "--source", source_file.path,
-            "--destination", destination_file.path,
+            "--source",
+            source_file.path,
+            "--destination",
+            destination_file.path,
         ],
-        inputs = [ file_copy_script, source_file ],
+        inputs = [source_file],
+        tools = [file_copy_script],
         executable = file_copy_script,
-        outputs = [ destination_file ],
+        outputs = [destination_file],
     )
 
 def generate_templated_file(ctx, generate_templated_file_script, template, config, out_file):
@@ -53,38 +56,41 @@ def generate_templated_file(ctx, generate_templated_file_script, template, confi
     if type(out_file) != "File":
         fail("out_file was not a File")
 
-    ctx.action(
+    ctx.actions.run(
         mnemonic = "GeneratingFileFromJinjaTemplate",
         arguments = [
-            "--template", template.path,
-            "--config", str(config),
-            "--out-file", out_file.path,
+            "--template",
+            template.path,
+            "--config",
+            str(config),
+            "--out-file",
+            out_file.path,
         ],
-        inputs = [ template ],
+        inputs = [template],
         executable = generate_templated_file_script,
-        outputs = [ out_file ],
+        outputs = [out_file],
     )
 
-def stamp_file(ctx, out_file, content=""):
-    ctx.file_action(
+def stamp_file(ctx, out_file, content = ""):
+    ctx.actions.write(
         output = out_file,
         content = content,
     )
 
-def zip_files(ctx, zip_files_script, sources, out_file, strip_prefixes=None):
-    ctx.action(
+def zip_files(ctx, zip_files_script, sources, out_file, strip_prefixes = None):
+    ctx.actions.run(
         mnemonic = "Zip",
         arguments = (
             (
-                [ "--sources" ] + [ file.path for file in sources ] if sources else []
+                ["--sources"] + [file.path for file in sources] if sources else []
             ) +
-            [ "--strip-first", ctx.bin_dir.path + "/", ctx.genfiles_dir.path + "/" ] +
+            ["--strip-first", ctx.bin_dir.path + "/", ctx.genfiles_dir.path + "/"] +
             (
-                [ "--strip-prefixes" ] + strip_prefixes if strip_prefixes else []
+                ["--strip-prefixes"] + strip_prefixes if strip_prefixes else []
             ) +
-            [ "--output", out_file.path ]
+            ["--output", out_file.path]
         ),
         inputs = sources,
         executable = zip_files_script,
-        outputs = [ out_file ],
+        outputs = [out_file],
     )

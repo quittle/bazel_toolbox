@@ -6,5 +6,8 @@ py_binary(
     srcs = [
         "scripts/assert_equal.py",
     ],
-    visibility = [ "//visibility:public" ],
+    #    default_python_version = "PY2",
+    #    python_version = "PY2",
+    #    srcs_version = "PY2ONLY",
+    visibility = ["//visibility:public"],
 )

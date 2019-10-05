@@ -1,7 +1,8 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//actions:actions.bzl",
+load(
+    "//actions:actions.bzl",
     "zip_files",
 )
 
@@ -35,22 +36,29 @@ generate_gen_file = rule(
 )
 
 def zip_files_impl(ctx):
-    zip_files(ctx, ctx.executable._zip_script, ctx.files.srcs, ctx.outputs.zip,
-            ctx.attr.strip_prefixes)
+    zip_files(
+        ctx,
+        ctx.executable._zip_script,
+        ctx.files.srcs,
+        ctx.outputs.zip,
+        ctx.attr.strip_prefixes,
+    )
 
 def _zip_runfiles_impl(ctx):
-    ctx.action(
+    ctx.actions.run(
         mnemonic = "ZipPyRunfiles",
         arguments = [
-            "--output", ctx.outputs.zip.path,
-        ] +
-            [ "--ignore-files",
-                ctx.executable.binary.path,
-                ctx.attr.binary.files_to_run.executable.path,
-            ],
-        inputs =  [ ctx.executable.binary ],
+                        "--output",
+                        ctx.outputs.zip.path,
+                    ] +
+                    [
+                        "--ignore-files",
+                        ctx.executable.binary.path,
+                        ctx.attr.binary.files_to_run.executable.path,
+                    ],
+        tools = [ctx.executable.binary],
         executable = ctx.executable.binary,
-        outputs = [ ctx.outputs.zip, ],
+        outputs = [ctx.outputs.zip],
     )
 
 zip_runfiles_rule = rule(

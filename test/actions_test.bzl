@@ -1,18 +1,19 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//assert:assert.bzl",
+load(
+    "//assert:assert.bzl",
     "assert_files_equal",
     "assert_str_equal",
 )
-
-load("//actions:actions.bzl",
+load(
+    "//actions:actions.bzl",
     "file_copy",
     "generate_templated_file",
     "stamp_file",
 )
-
-load("//labels:labels.bzl",
+load(
+    "//labels:labels.bzl",
     "executable_label",
 )
 
@@ -29,8 +30,7 @@ def _test_file_copy_rule_impl(ctx):
 _test_file_copy_rule = rule(
     attrs = {
         "source": attr.label(
-            allow_files = True,
-            single_file = True,
+            allow_single_file = True,
             mandatory = True,
         ),
         "_file_copy": executable_label("//actions:file_copy"),
@@ -58,19 +58,18 @@ def _test_generate_templated_file_rule_impl(ctx):
         {
             "fruit": "apple",
             "deeply": {
-                "nested": [ {
-                    "value": 5
-                } ]
-            }
+                "nested": [{
+                    "value": 5,
+                }],
+            },
         },
-        ctx.outputs.destination
+        ctx.outputs.destination,
     )
 
 _test_generate_templated_file_rule = rule(
     attrs = {
         "template": attr.label(
-            allow_files = True,
-            single_file = True,
+            allow_single_file = True,
             mandatory = True,
         ),
         "_generate_templated_file": executable_label("//actions:generate_templated_file"),
