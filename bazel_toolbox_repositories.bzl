@@ -34,8 +34,8 @@ def bazel_toolbox_repositories():
         name = "jinja",
         user = "pallets",
         project = "jinja",
-        tag = "2.10",
-        sha256 = "0d31d3466c313a9ca014a2d904fed18cdac873a5ba1f7b70b8fd8b206cd860d6",
+        tag = "2.10.3",
+        sha256 = "db49236731373e4f3118af880eb91bb0aa6978bc0cf8b35760f6a026f1a9ffc4",
         build_file_content = _JINJA_BUILD_FILE,
     )
 
@@ -43,8 +43,8 @@ def bazel_toolbox_repositories():
         name = "markup_safe",
         user = "pallets",
         project = "markupsafe",
-        tag = "1.0",
-        sha256 = "dc3938045d9407a73cf9fdd709e2b1defd0588d50ffc85eb0786c095ec846f15",
+        tag = "1.1.1",
+        sha256 = "222a10e3237d92a9cd45ed5ea882626bc72bc5e0264d3ed0f2c9129fa69fc167",
         build_file_content = _MARKUP_SAFE_BUILD_FILE,
     )
 
