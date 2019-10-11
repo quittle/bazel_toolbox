@@ -60,7 +60,7 @@ def _assert_label_struct_impl(ctx):
                  actual = actual_dict,
              ))
 
-    ctx.file_action(
+    ctx.actions.write(
         content = "",
         output = ctx.outputs.stamp_file,
     )

@@ -5,8 +5,8 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Copies a file from one location to another')
-    parser.add_argument('--source', type=argparse.FileType('r'), required=True)
-    parser.add_argument('--destination', type=argparse.FileType('w'), required=True)
+    parser.add_argument('--source', type=argparse.FileType('rb'), required=True)
+    parser.add_argument('--destination', type=argparse.FileType('wb'), required=True)
     return parser.parse_args()
 
 def main():
