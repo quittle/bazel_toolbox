@@ -1,11 +1,12 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//labels:labels.bzl",
+load(
+    "//labels:labels.bzl",
     "executable_label",
 )
-
-load(":internal.bzl",
+load(
+    ":internal.bzl",
     "generate_bin_file",
     "generate_gen_file",
     "zip_files_impl",
@@ -34,7 +35,7 @@ zip_files = rule(
 )
 
 def zip_runfiles(name, py_library):
-    zip_binary_script = "{name}__py_binary".format(name=name)
+    zip_binary_script = "{name}__py_binary".format(name = name)
 
     native.py_binary(
         name = zip_binary_script,

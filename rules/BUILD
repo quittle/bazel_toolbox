@@ -3,6 +3,6 @@
 
 py_library(
     name = "zip_runfiles",
-    srcs = [ "scripts/zip_runfiles.py" ],
-    visibility = [ "//visibility:public" ],
+    srcs = ["scripts/zip_runfiles.py"],
+    visibility = ["//visibility:public"],
 )

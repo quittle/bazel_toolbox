@@ -6,10 +6,10 @@ py_library(
     srcs = [
         "scripts/jinja_helper.py",
     ],
+    visibility = ["//visibility:public"],
     deps = [
-        "@jinja//:jinja",
+        "@jinja",
     ],
-    visibility = [ "//visibility:public" ],
 )
 
 py_binary(
@@ -17,10 +17,10 @@ py_binary(
     srcs = [
         "scripts/generate_templated_file.py",
     ],
+    visibility = ["//visibility:public"],
     deps = [
-        ":jinja_helper"
+        ":jinja_helper",
     ],
-    visibility = [ "//visibility:public" ],
 )
 
 py_binary(
@@ -28,16 +28,16 @@ py_binary(
     srcs = [
         "scripts/file_copy.py",
     ],
-    visibility = [ "//visibility:public" ],
+    visibility = ["//visibility:public"],
 )
 
 java_binary(
     name = "zip_files",
-    srcs = glob([ "scripts/zip_files/java/src/**/*.java" ]),
+    srcs = glob(["scripts/zip_files/java/src/**/*.java"]),
     main_class = "com.dustindoloff.zipfiles.Main",
+    visibility = ["//visibility:public"],
     deps = [
         "@org_apache_commons_cli//jar",
         "@org_apache_commons_io//jar",
     ],
-    visibility = [ "//visibility:public" ],
 )

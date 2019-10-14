@@ -1,11 +1,12 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//assert:assert.bzl",
+load(
+    "//assert:assert.bzl",
     "assert_equal",
 )
-
-load("//control_flow:control_flow.bzl",
+load(
+    "//control_flow:control_flow.bzl",
     "while_loop",
 )
 
@@ -46,5 +47,5 @@ def test_while_loop():
             "is_3_calls": 4,
             "value": 3,
         },
-        while_loop(incr, is_3, state = {"value": 0})
+        while_loop(incr, is_3, state = {"value": 0}),
     )

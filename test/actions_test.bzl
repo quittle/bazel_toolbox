@@ -4,7 +4,6 @@
 load(
     "//assert:assert.bzl",
     "assert_files_equal",
-    "assert_str_equal",
 )
 load(
     "//actions:actions.bzl",

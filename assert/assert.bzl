@@ -1,7 +1,8 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load(":internal.bzl",
+load(
+    ":internal.bzl",
     "assert_files_equal_rule",
     "assert_label_struct_rule",
 )

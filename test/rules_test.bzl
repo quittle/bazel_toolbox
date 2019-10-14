@@ -1,16 +1,16 @@
 # Copyright (c) 2017 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("//actions:actions.bzl",
+load(
+    "//actions:actions.bzl",
     "stamp_file",
 )
-
-load("//assert:assert.bzl",
+load(
+    "//assert:assert.bzl",
     "assert_files_equal",
-    "assert_label_providers",
 )
-
-load("//rules:rules.bzl",
+load(
+    "//rules:rules.bzl",
     "generate_file",
     "zip_files",
     "zip_runfiles",
@@ -136,18 +136,18 @@ def test_zip_runfiles():
 def test_zip_runfiles_deps():
     native.py_library(
         name = "simple_library",
-        srcs = [ "data/test.py" ],
+        srcs = ["data/test.py"],
     )
 
     native.py_library(
         name = "single_dep_library",
-        srcs = [ "data/test.py" ],
-        data = [ "data/file.txt" ],
+        srcs = ["data/test.py"],
+        data = ["data/file.txt"],
     )
 
     native.py_binary(
         name = "complex_binary",
-        srcs = [ "data/other.py" ],
+        srcs = ["data/other.py"],
         main = "data/other.py",
         deps = [
             ":simple_library",
@@ -156,8 +156,7 @@ def test_zip_runfiles_deps():
         data = [
             "data/empty.txt",
             "@markup_safe//:markup_safe",
-        ]
-
+        ],
     )
 
 def test_simple_zip_runfiles():
