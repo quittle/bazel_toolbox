@@ -1,7 +1,8 @@
 # Copyright (c) 2017-2018 Dustin Doloff
 # Licensed under Apache License v2.0
 
-load("@bazel_repository_toolbox//:github_repository.bzl", "new_github_repository")
+load("@bazel_repository_toolbox//:github_repository.bzl", "github_repository", "new_github_repository")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 _JINJA_BUILD_FILE = """
 
@@ -48,14 +49,12 @@ def bazel_toolbox_repositories():
         build_file_content = _MARKUP_SAFE_BUILD_FILE,
     )
 
-    native.maven_jar(
-        name = "org_apache_commons_cli",
-        artifact = "commons-cli:commons-cli:1.4",
-        sha1 = "c51c00206bb913cd8612b24abd9fa98ae89719b1",
-    )
-
-    native.maven_jar(
-        name = "org_apache_commons_io",
-        artifact = "commons-io:commons-io:2.6",
-        sha1 = "815893df5f31da2ece4040fe0a12fd44b577afaf",
+    maven_install(
+        artifacts = [
+            "commons-cli:commons-cli:1.4",
+            "commons-io:commons-io:2.6",
+        ],
+        repositories = [
+            "https://repo1.maven.org/maven2",
+        ],
     )

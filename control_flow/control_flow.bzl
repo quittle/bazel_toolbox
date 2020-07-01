@@ -8,7 +8,7 @@ load(
 
 # Due to restrictions of the language, the only loop supported is a for-in loop, so a long iterable
 # is needed to simulate a while-do loop
-_LONG_LIST = (10000 * ".").split("")
+_LONG_LIST = (10000 * ".").split(".")
 
 def while_loop(body, termination_case = default_while_loop_termination_case, state = None):
     """

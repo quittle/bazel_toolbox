@@ -15,7 +15,7 @@ load(
 
 # Due to restrictions of the language, the only loop supported is a for-in loop, so a long iterable
 # is needed to simulate a while-do loop
-_LONG_LIST = (10000 * ".").split("")
+_LONG_LIST = (10000 * ".").split(".")
 
 def simple_dict(dictionary):
     """
